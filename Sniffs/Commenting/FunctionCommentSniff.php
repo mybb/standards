@@ -99,7 +99,7 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 				}
 				
 				// If we have our inheritdoc element and hadn't it before we'll save that
-				if ($string == '{@inheritdoc}') {
+				if (strtolower($string) == '{@inheritdoc}') {
 					if ($hadInherit) {
 						$error = '"{@inheritdoc}" can only be added once';
 						$phpcsFile->addError($error, $i, 'TwoInheritations');

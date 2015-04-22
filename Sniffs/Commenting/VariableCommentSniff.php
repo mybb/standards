@@ -2,6 +2,10 @@
 
 class MyBB2_Sniffs_Commenting_VariableCommentSniff extends Squiz_Sniffs_Commenting_VariableCommentSniff
 {
+	/**
+	 * @param PHP_CodeSniffer_File $phpcsFile
+	 * @param int                  $stackPtr
+	 */
 	public function processMemberVar(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
 	{
 		$tokens       = $phpcsFile->getTokens();

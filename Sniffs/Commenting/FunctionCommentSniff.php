@@ -2,9 +2,12 @@
 
 class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
 {
+	/**
+	 * @var boolean
+	 */
 	private $hasReturn;
-	
-	
+
+
 	/**
 	 * Processes this test, when one of its tokens is encountered.
 	 *
@@ -19,14 +22,14 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 		$tokens = $phpcsFile->getTokens();
 
 		$nextReturn = $phpcsFile->findNext(T_RETURN, $stackPtr);
-		$nextFunction = $phpcsFile->findNext(T_FUNCTION, $stackPtr+1);
+		$nextFunction = $phpcsFile->findNext(T_FUNCTION, $stackPtr + 1);
 
 		// Ignore functions without return type
 		$this->hasReturn = !($nextReturn === false || $nextReturn > $nextFunction);
 
 		$parameters = $phpcsFile->getMethodParameters($stackPtr);
 
-		$find   = PHP_CodeSniffer_Tokens::$methodPrefixes;
+		$find = PHP_CodeSniffer_Tokens::$methodPrefixes;
 		$find[] = T_WHITESPACE;
 		$commentEnd = $phpcsFile->findPrevious($find, ($stackPtr - 1), null, true);
 
@@ -40,7 +43,7 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 				$commentEnd = $prev;
 			}
 		}
-		
+
 		// we only require the doc for methods with either a return value or parameters
 		// However if we don't have any of it but a doc block is created we still want to check it
 		if (!$this->hasReturn && empty($parameters)) {
@@ -59,16 +62,23 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 		if ($this->isValidInheritationComment($phpcsFile, $commentStart, $commentEnd)) {
 			return;
 		}
-		
+
 		parent::process($phpcsFile, $stackPtr);
 
 		if ($tokens[$commentEnd]['code'] !== T_DOC_COMMENT_CLOSE_TAG) {
 			return;
 		}
-		
+
 		$this->processNewLine($phpcsFile, $commentStart);
 	}
 
+	/**
+	 * @param PHP_CodeSniffer_File $phpcsFile
+	 * @param int                  $commentStart
+	 * @param int                  $commentEnd
+	 *
+	 * @return bool
+	 */
 	public function isValidInheritationComment(PHP_CodeSniffer_File $phpcsFile, $commentStart, $commentEnd)
 	{
 		$tokens = $phpcsFile->getTokens();
@@ -82,7 +92,7 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 			T_DOC_COMMENT_CLOSE_TAG,
 		);
 
-		for ($i=$commentStart; $i<=$commentEnd; $i++) {
+		for ($i = $commentStart; $i <= $commentEnd; $i++) {
 			$type = $tokens[$i]['code'];
 
 			// Ignore valid elements
@@ -92,17 +102,18 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 
 			if ($type === T_DOC_COMMENT_STRING) {
 				$string = trim($tokens[$i]['content']);
-				
+
 				// Ignore emtpy strings
 				if (empty($string)) {
 					continue;
 				}
-				
+
 				// If we have our inheritdoc element and hadn't it before we'll save that
 				if (strtolower($string) == '{@inheritdoc}') {
 					if ($hadInherit) {
 						$error = '"{@inheritdoc}" can only be added once';
 						$phpcsFile->addError($error, $i, 'TwoInheritations');
+
 						return false;
 					}
 					$hadInherit = true;
@@ -113,6 +124,7 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 			if ($hadInherit && $hadOther) {
 				$error = '"{@inheritdoc}" needs to be the only element';
 				$phpcsFile->addError($error, $i, 'OnlyOneInheritation');
+
 				return false;
 			}
 
@@ -123,10 +135,16 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 		if ($hadInherit) {
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
+	/**
+	 * @param PHP_CodeSniffer_File $phpcsFile
+	 * @param int                  $commentStart
+	 *
+	 * @return void
+	 */
 	private function processNewLine(PHP_CodeSniffer_File $phpcsFile, $commentStart)
 	{
 		$tokens = $phpcsFile->getTokens();
@@ -137,19 +155,25 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 			$tag = $tokens[$tagIndex];
 
 			if (!empty($prevTag)) {
-				$lineDiff = $tag['line']-$prevTag['line'];
+				$lineDiff = $tag['line'] - $prevTag['line'];
 
 				// New tag type? And they're not seperated by one empty line? That's our error
 				if ($prevTag['type'] != $tag['content']) {
 					$lineDiffShouldBe = 2;
-					
+
 					if ($prevTag['type'] == '@param') {
-						$nextIndex = $phpcsFile->findNext(array(T_DOC_COMMENT_TAG, T_DOC_COMMENT_STRING), $prevTag['index']+1);
+						$nextIndex = $phpcsFile->findNext(
+							array(T_DOC_COMMENT_TAG, T_DOC_COMMENT_STRING),
+							$prevTag['index'] + 1
+						);
 
 						while ($tokens[$nextIndex]['code'] != T_DOC_COMMENT_TAG) {
 							$lineDiffShouldBe = $lineDiffShouldBe + $tokens[$nextIndex]['line'] - $prevTag['line'];
-						
-							$nextIndex = $phpcsFile->findNext(array(T_DOC_COMMENT_TAG, T_DOC_COMMENT_STRING), $nextIndex+1);
+
+							$nextIndex = $phpcsFile->findNext(
+								array(T_DOC_COMMENT_TAG, T_DOC_COMMENT_STRING),
+								$nextIndex + 1
+							);
 						}
 					}
 
@@ -166,35 +190,35 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 					'index' => $tagIndex
 				);
 			}
-			
+
 			$prevTag = array(
 				'type' => $tag['content'],
 				'line' => $tag['line'],
 				'index' => $tagIndex
 			);
 		}
-		
+
 		// No tag? Only comment then, nothing to do
 		if ($firstTagLine['line'] == -1) {
 			return;
 		}
-		
+
 		$internalFirstLine = $firstTagLine['line'] - $tokens[$commentStart]['line'];
-		
+
 		// The first tag is on the first comment line so we don't need to check other things
 		if ($internalFirstLine == 1) {
 			return;
 		}
-		
+
 		$previousStringIndex = $phpcsFile->findPrevious(T_DOC_COMMENT_STRING, $firstTagLine['index']);
 
 		// The comment is somewhere but not two lines above the firsttag
-		if ($tokens[$previousStringIndex]['line'] != $firstTagLine['line']-2) {
+		if ($tokens[$previousStringIndex]['line'] != $firstTagLine['line'] - 2) {
 			$error = 'There should be exactly one new line between different tag types';
 			$phpcsFile->addError($error, $tagIndex, 'MissingNewLine');
 		}
 	}
-	
+
 	/**
 	 * Process the return comment of this function comment.
 	 *
@@ -211,7 +235,7 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 		if (!$this->hasReturn) {
 			return;
 		}
-		
+
 		parent::processReturn($phpcsFile, $stackPtr, $commentStart);
 	}
 
@@ -228,37 +252,37 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 	protected function processParams(PHP_CodeSniffer_File $phpcsFile, $stackPtr, $commentStart)
 	{
 		$tokens = $phpcsFile->getTokens();
-		$params  = array();
+		$params = array();
 		$maxType = 0;
-		$maxVar  = 0;
+		$maxVar = 0;
 		foreach ($tokens[$commentStart]['comment_tags'] as $pos => $tag) {
 			if ($tokens[$tag]['content'] !== '@param') {
 				continue;
 			}
-			$type      = '';
+			$type = '';
 			$typeSpace = 0;
-			$var       = '';
-			$varSpace  = 0;
-			$comment   = '';
+			$var = '';
+			$varSpace = 0;
+			$comment = '';
 			if ($tokens[($tag + 2)]['code'] === T_DOC_COMMENT_STRING) {
 				$matches = array();
 				preg_match('/([^$&]+)(?:((?:\$|&)[^\s]+)(?:(\s+)(.*))?)?/', $tokens[($tag + 2)]['content'], $matches);
-				$typeLen   = strlen($matches[1]);
-				$type      = trim($matches[1]);
+				$typeLen = strlen($matches[1]);
+				$type = trim($matches[1]);
 				$typeSpace = ($typeLen - strlen($type));
-				$typeLen   = strlen($type);
+				$typeLen = strlen($type);
 				if ($typeLen > $maxType) {
 					$maxType = $typeLen;
 				}
 				if (isset($matches[2]) === true) {
-					$var    = $matches[2];
+					$var = $matches[2];
 					$varLen = strlen($var);
 					if ($varLen > $maxVar) {
 						$maxVar = $varLen;
 					}
 					if (isset($matches[4]) === true) {
 						$varSpace = strlen($matches[3]);
-						$comment  = $matches[4];
+						$comment = $matches[4];
 						// Any strings until the next tag belong to this comment.
 						if (isset($tokens[$commentStart]['comment_tags'][($pos + 1)]) === true) {
 							$end = $tokens[$commentStart]['comment_tags'][($pos + 1)];
@@ -267,7 +291,7 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 						}
 						for ($i = ($tag + 3); $i < $end; $i++) {
 							if ($tokens[$i]['code'] === T_DOC_COMMENT_STRING) {
-								$comment .= ' '.$tokens[$i]['content'];
+								$comment .= ' ' . $tokens[$i]['content'];
 							}
 						}
 					}
@@ -280,15 +304,15 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 				$phpcsFile->addError($error, $tag, 'MissingParamType');
 			}//end if
 			$params[] = array(
-						 'tag'        => $tag,
-						 'type'       => $type,
-						 'var'        => $var,
-						 'comment'    => $comment,
-						 'type_space' => $typeSpace,
-						 'var_space'  => $varSpace,
-						);
+				'tag' => $tag,
+				'type' => $type,
+				'var' => $var,
+				'comment' => $comment,
+				'type_space' => $typeSpace,
+				'var_space' => $varSpace,
+			);
 		}//end foreach
-		$realParams  = $phpcsFile->getMethodParameters($stackPtr);
+		$realParams = $phpcsFile->getMethodParameters($stackPtr);
 		$foundParams = array();
 		foreach ($params as $pos => $param) {
 			if ($param['var'] === '') {
@@ -299,13 +323,13 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 			$spaces = ($maxType - strlen($param['type']) + 1);
 			if ($param['type_space'] !== $spaces) {
 				$error = 'Expected %s spaces after parameter type; %s found';
-				$data  = array(
-						  $spaces,
-						  $param['type_space'],
-						 );
+				$data = array(
+					$spaces,
+					$param['type_space'],
+				);
 				$fix = $phpcsFile->addFixableError($error, $param['tag'], 'SpacingAfterParamType', $data);
 				if ($fix === true) {
-					$content  = $param['type'];
+					$content = $param['type'];
 					$content .= str_repeat(' ', $spaces);
 					$content .= $param['var'];
 					$content .= str_repeat(' ', $param['var_space']);
@@ -319,13 +343,13 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 				if ($realName !== $param['var']) {
 					$code = 'ParamNameNoMatch';
 					$data = array(
-							 $param['var'],
-							 $realName,
-							);
+						$param['var'],
+						$realName,
+					);
 					$error = 'Doc comment for parameter %s does not match ';
 					if (strtolower($param['var']) === strtolower($realName)) {
 						$error .= 'case of ';
-						$code   = 'ParamNameNoCaseMatch';
+						$code = 'ParamNameNoCaseMatch';
 					}
 					$error .= 'actual variable name %s';
 					$phpcsFile->addError($error, $param['tag'], $code, $data);
@@ -342,13 +366,13 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 			$spaces = ($maxVar - strlen($param['var']) + 1);
 			if ($param['var_space'] !== $spaces) {
 				$error = 'Expected %s spaces after parameter name; %s found';
-				$data  = array(
-						  $spaces,
-						  $param['var_space'],
-						 );
+				$data = array(
+					$spaces,
+					$param['var_space'],
+				);
 				$fix = $phpcsFile->addFixableError($error, $param['tag'], 'SpacingAfterParamName', $data);
 				if ($fix === true) {
-					$content  = $param['type'];
+					$content = $param['type'];
 					$content .= str_repeat(' ', $param['type_space']);
 					$content .= $param['var'];
 					$content .= str_repeat(' ', $spaces);
@@ -365,7 +389,7 @@ class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commentin
 		$diff = array_diff($realNames, $foundParams);
 		foreach ($diff as $neededParam) {
 			$error = 'Doc comment for parameter "%s" missing';
-			$data  = array($neededParam);
+			$data = array($neededParam);
 			$phpcsFile->addError($error, $commentStart, 'MissingParamTag', $data);
 		}
 	}

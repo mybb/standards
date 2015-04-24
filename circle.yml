@@ -3,9 +3,3 @@ machine:
     Europe/London
   php:
     version: 5.5.21
-dependencies:
-    override:
-        - curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
-test:
-    override:
-        - php phpcs.phar

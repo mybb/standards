@@ -4,7 +4,7 @@
 
     "autoload": {
         "classmap": [
-            "Sniffs/"
+            "MyBB2/"
         ]
     }
 }

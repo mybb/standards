@@ -1,4 +1,14 @@
 <?php
+/**
+ * Sniff to check function comments
+ * A comment should be added to all functions with a parameter or a return value
+ * All comment types (param, return, throws, description) should have at least one blank line
+ *
+ * @author  MyBB Group
+ * @version 2.0.0
+ * @package mybb/standards
+ * @license http://www.mybb.com/licenses/bsd3 BSD-3
+ */
 
 class MyBB2_Sniffs_Commenting_FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
 {

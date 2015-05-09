@@ -1,6 +1,7 @@
 {
     "name": "mybb/standards",
     "description": "MyBB 2.0 Coding Standard",
+    "license": "BSD-3",
 
     "autoload": {
         "classmap": [

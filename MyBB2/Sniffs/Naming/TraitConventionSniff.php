@@ -1,4 +1,12 @@
 <?php
+/**
+ * Sniff to ensure that traits (and only them) are suffixed with 'Trait'
+ *
+ * @author  MyBB Group
+ * @version 2.0.0
+ * @package mybb/standards
+ * @license http://www.mybb.com/licenses/bsd3 BSD-3
+ */
 
 class MyBB2_Sniffs_Naming_TraitConventionSniff implements PHP_CodeSniffer_Sniff
 {

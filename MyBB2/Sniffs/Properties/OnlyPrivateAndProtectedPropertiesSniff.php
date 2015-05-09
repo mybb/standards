@@ -1,4 +1,12 @@
 <?php
+/**
+ * Sniff to ensure that class variables are either 'private' or 'protected'
+ *
+ * @author  MyBB Group
+ * @version 2.0.0
+ * @package mybb/standards
+ * @license http://www.mybb.com/licenses/bsd3 BSD-3
+ */
 
 class MyBB2_Sniffs_Properties_OnlyPrivateAndProtectedPropertiesSniff implements PHP_CodeSniffer_Sniff
 {

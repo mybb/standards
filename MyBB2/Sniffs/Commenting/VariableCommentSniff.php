@@ -1,4 +1,12 @@
 <?php
+/**
+ * Sniff to check class whether class variables have a doc block. One liners aren't allowed
+ *
+ * @author  MyBB Group
+ * @version 2.0.0
+ * @package mybb/standards
+ * @license http://www.mybb.com/licenses/bsd3 BSD-3
+ */
 
 class MyBB2_Sniffs_Commenting_VariableCommentSniff extends Squiz_Sniffs_Commenting_VariableCommentSniff
 {

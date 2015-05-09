@@ -1,4 +1,12 @@
 <?php
+/**
+ * Sniff to ensure that Interfaces (and only them) are suffixed with 'Interface'
+ *
+ * @author  MyBB Group
+ * @version 2.0.0
+ * @package mybb/standards
+ * @license http://www.mybb.com/licenses/bsd3 BSD-3
+ */
 
 class MyBB2_Sniffs_Naming_InterfaceConventionSniff implements PHP_CodeSniffer_Sniff
 {

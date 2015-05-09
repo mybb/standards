@@ -1,4 +1,12 @@
 <?php
+/**
+ * Sniff to ensure that only one trait per 'use' is included
+ *
+ * @author  MyBB Group
+ * @version 2.0.0
+ * @package mybb/standards
+ * @license http://www.mybb.com/licenses/bsd3 BSD-3
+ */
 
 class MyBB2_Sniffs_General_TraitConventionSniff implements PHP_CodeSniffer_Sniff
 {
@@ -14,8 +22,8 @@ class MyBB2_Sniffs_General_TraitConventionSniff implements PHP_CodeSniffer_Sniff
 				T_USE
 			   );
 	}
-	
-	    /**
+
+	/**
 	 * Processes this test, when one of its tokens is encountered.
 	 *
 	 * @param PHP_CodeSniffer_File $phpcsFile The current file being processed.
